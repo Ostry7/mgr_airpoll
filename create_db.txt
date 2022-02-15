@@ -1,0 +1,94 @@
+-- Table: airai.airly
+
+-- DROP TABLE IF EXISTS airai.airly;
+
+CREATE TABLE IF NOT EXISTS airai.airly
+(
+    id bigint NOT NULL DEFAULT nextval('airai.airly_id_seq'::regclass),
+    id_station bigint,
+    pm1 double precision,
+    pm25 double precision,
+    pm10 double precision,
+    pressure double precision,
+    humidity double precision,
+    temperature double precision,
+    from_date character varying COLLATE pg_catalog."default",
+    till_date character varying COLLATE pg_catalog."default",
+    CONSTRAINT airly_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS airai.airly
+    OWNER to postgres;
+	
+-- Table: airai.open_weather
+
+-- DROP TABLE IF EXISTS airai.open_weather;
+
+CREATE TABLE IF NOT EXISTS airai.open_weather
+(
+    id bigint NOT NULL DEFAULT nextval('airai.open_weather_id_seq'::regclass),
+    id_station bigint,
+    date character varying COLLATE pg_catalog."default",
+    wind_speed double precision,
+    wind_direction double precision,
+    weather character varying COLLATE pg_catalog."default",
+    CONSTRAINT open_weather_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS airai.open_weather
+    OWNER to postgres;
+	
+-- Table: airai.open_weather_pollutions
+
+-- DROP TABLE IF EXISTS airai.open_weather_pollutions;
+
+CREATE TABLE IF NOT EXISTS airai.open_weather_pollutions
+(
+    id bigint NOT NULL DEFAULT nextval('airai.open_weather_pollutions_id_seq'::regclass),
+    no2 character varying COLLATE pg_catalog."default",
+    no character varying COLLATE pg_catalog."default",
+    o3 character varying COLLATE pg_catalog."default",
+    so2 character varying COLLATE pg_catalog."default",
+    pm2_5 character varying COLLATE pg_catalog."default",
+    pm10 character varying COLLATE pg_catalog."default",
+    nh3 character varying COLLATE pg_catalog."default",
+    id_station bigint NOT NULL,
+    co character varying COLLATE pg_catalog."default",
+    CONSTRAINT open_weather_pollutions_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS airai.open_weather_pollutions
+    OWNER to postgres;
+	
+-- Table: airai.station
+
+-- DROP TABLE IF EXISTS airai.station;
+
+CREATE TABLE IF NOT EXISTS airai.station
+(
+    id bigint NOT NULL DEFAULT nextval('airai.station_id_seq'::regclass),
+    id_vendor bigint NOT NULL,
+    vendor_name character varying COLLATE pg_catalog."default",
+    latitude double precision,
+    longitude double precision,
+    geom geometry,
+    of_pair bigint,
+    distance double precision,
+    elevation double precision,
+    description character varying COLLATE pg_catalog."default",
+    city character varying COLLATE pg_catalog."default",
+    street character varying COLLATE pg_catalog."default",
+    nr character varying COLLATE pg_catalog."default",
+    CONSTRAINT station_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS airai.station
+    OWNER to postgres;
