@@ -49,7 +49,7 @@ public class OpenWeatherPollutionServlet {
 
     private static JSONObject openWeatherPollutionGet(ArrayList<String> arrPollution) {
         try {
-            URL url = new URL(q1 + arrPollution.get(0) + q2 + arrPollution.get(1) + q5 + "1641061482" + q6 + "1641234282" + q4 + apikey);
+            URL url = new URL(q1 + arrPollution.get(0) + q2 + arrPollution.get(1) + q5 + "1622569761" + q6 + "1635792561" + q4 + apikey);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             BufferedReader in = new BufferedReader(

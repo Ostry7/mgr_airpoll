@@ -6,8 +6,8 @@ import java.util.Map;
 public class DatabaseAgent {
 
     private final static String openWeatherStatement =
-            "INSERT INTO airai.open_weather (wind_speed, wind_direction, weather, date, id_station) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO airai.open_weather (temp, humidity, pressure, id_station) " +
+                    "VALUES (?, ?, ?, ?)";
 
     private final static String openWeatherPollutions =
             "INSERT INTO airai.open_weather_pollutions (no2, no, o3, so2, pm2_5, pm10, nh3, id_station, co)" +
@@ -18,11 +18,11 @@ public class DatabaseAgent {
         Connection c = connectDB();
         try { stmt = c.createStatement();
             PreparedStatement st = c.prepareStatement(openWeatherStatement);
-            st.setString(1, hourData.get("wind_speed"));
-            st.setString(2, hourData.get("wind_direction"));
-            st.setString(3, hourData.get("weather"));
-            st.setString(4, hourData.get("time"));
-            st.setInt(5, Integer.parseInt(hourData.get("station")));
+            st.setString(1, hourData.get("temp"));
+            st.setString(2, hourData.get("humidity"));
+            st.setString(3, hourData.get("pressure"));
+            //st.setString(4, hourData.get("time"));
+            st.setInt(4, Integer.parseInt(hourData.get("station")));
             stmt.executeUpdate(String.valueOf(st));
             stmt.close();
             c.commit();

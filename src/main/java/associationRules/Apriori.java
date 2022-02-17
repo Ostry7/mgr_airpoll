@@ -1,4 +1,5 @@
 package associationRules;
+
 import java.io.*;
 import java.util.*;
 
@@ -23,21 +24,21 @@ import java.util.*;
  * No reproduction in whole or part without maintaining this copyright notice
  * and imposing this condition on any subsequent users.
  */
+public class Apriori extends Observable {
 
-public class AssociationsRules extends Observable {
 
     public static void main(String[] args) throws Exception {
-        AssociationsRules ap = new AssociationsRules(args);
+        Apriori ap = new Apriori(args);
     }
 
     /** the list of current itemsets */
-    private List<double[]> itemsets ;
+    private List<int[]> itemsets ;
     /** the name of the transcation file */
     private String transaFile;
     /** number of different items in the dataset */
-    private double numItems;
+    private int numItems;
     /** total number of transactions in transaFile */
-    private double numTransactions;
+    private int numTransactions;
     /** minimum support for a frequent itemset in percentage, e.g. 0.8 */
     private double minSup;
 
@@ -45,7 +46,7 @@ public class AssociationsRules extends Observable {
     private boolean usedAsLibrary = false;
 
     /** This is the main interface to use this class as a library */
-    public  AssociationsRules(String[] args, Observer ob) throws Exception
+    public  Apriori(String[] args, Observer ob) throws Exception
     {
         usedAsLibrary = true;
         configure(args);
@@ -57,7 +58,7 @@ public class AssociationsRules extends Observable {
      *
      * @param args configuration parameters: args[0] is a filename, args[1] the min support (e.g. 0.8 for 80%)
      */
-    public  AssociationsRules(String[] args) throws Exception
+    public  Apriori(String[] args) throws Exception
     {
         configure(args);
         go();
@@ -96,7 +97,7 @@ public class AssociationsRules extends Observable {
     }
 
     /** triggers actions if a frequent item set has been found  */
-    private void foundFrequentItemSet(double[] itemset, double support) {
+    private void foundFrequentItemSet(int[] itemset, int support) {
         if (usedAsLibrary) {
             this.setChanged();
             notifyObservers(itemset);
@@ -120,7 +121,7 @@ public class AssociationsRules extends Observable {
 
         // setting minsupport
         if (args.length>=2) minSup=(Double.valueOf(args[1]).doubleValue());
-        else minSup = .1;// by default
+        else minSup = .8;// by default
         if (minSup>1 || minSup<0) throw new Exception("minSup: bad value");
 
 
@@ -132,25 +133,11 @@ public class AssociationsRules extends Observable {
             String line=data_in.readLine();
             if (line.matches("\\s*")) continue; // be friendly with empty lines
             numTransactions++;
-
-/*
-            Scanner file = new Scanner(new File(transaFile));
-            while(file.hasNextLine()) {
-            StringTokenizer strToken = new StringTokenizer(file.nextLine(), " ");  //czy wyrzuca cala linie
-            String pCode = "";
-
-            if(strToken.hasMoreTokens()){
-                pCode = strToken.nextToken();
-                System.out.println(pCode);
-            }
-            } */
-
-
-           StringTokenizer t = new StringTokenizer(line," ");
+            StringTokenizer t = new StringTokenizer(line," ");
             while (t.hasMoreTokens()) {
-                double x = Double.parseDouble(t.nextToken());
+                int x = Integer.parseInt(t.nextToken());
                 //log(x);
-                numItems=9;
+                if (x+1>numItems) numItems=x+1;
             }
         }
 
@@ -170,10 +157,10 @@ public class AssociationsRules extends Observable {
      * i.e. all possibles items of the datasets
      */
     private void createItemsetsOfSize1() {
-        itemsets = new ArrayList<double[]>();
+        itemsets = new ArrayList<int[]>();
         for(int i=0; i<numItems; i++)
         {
-            double[] cand = {i};
+            int[] cand = {i};
             itemsets.add(cand);
         }
     }
@@ -186,25 +173,25 @@ public class AssociationsRules extends Observable {
     private void createNewItemsetsFromPreviousOnes()
     {
         // by construction, all existing itemsets have the same size
-        double currentSizeOfItemsets = itemsets.get(0).length;
+        int currentSizeOfItemsets = itemsets.get(0).length;
         log("Creating itemsets of size "+(currentSizeOfItemsets+1)+" based on "+itemsets.size()+" itemsets of size "+currentSizeOfItemsets);
 
-        HashMap<String, double[]> tempCandidates = new HashMap<>(); //temporary candidates
+        HashMap<String, int[]> tempCandidates = new HashMap<String, int[]>(); //temporary candidates
 
         // compare each pair of itemsets of size n-1
         for(int i=0; i<itemsets.size(); i++)
         {
             for(int j=i+1; j<itemsets.size(); j++)
             {
-                double[] X = itemsets.get(i);
-                double[] Y = itemsets.get(j);
+                int[] X = itemsets.get(i);
+                int[] Y = itemsets.get(j);
 
                 assert (X.length==Y.length);
 
                 //make a string of the first n-2 tokens of the strings
-                double [] newCand = new double[(int) (currentSizeOfItemsets+1)];
+                int [] newCand = new int[currentSizeOfItemsets+1];
                 for(int s=0; s<newCand.length-1; s++) {
-                    newCand[s] = (int) X[s];
+                    newCand[s] = X[s];
                 }
 
                 int ndifferent = 0;
@@ -222,7 +209,7 @@ public class AssociationsRules extends Observable {
                     if (!found){ // Y[s1] is not in X
                         ndifferent++;
                         // we put the missing value at the end of newCand
-                        newCand[newCand.length -1] = (int) Y[s1];
+                        newCand[newCand.length -1] = Y[s1];
                     }
 
                 }
@@ -232,7 +219,7 @@ public class AssociationsRules extends Observable {
 
 
                 if (ndifferent==1) {
-
+                    // HashMap does not have the correct "equals" for int[] :-(
                     // I have to create the hash myself using a String :-(
                     // I use Arrays.toString to reuse equals and hashcode of String
                     Arrays.sort(newCand);
@@ -242,7 +229,7 @@ public class AssociationsRules extends Observable {
         }
 
         //set the new itemsets
-        itemsets = new ArrayList<double[]>(tempCandidates.values());
+        itemsets = new ArrayList<int[]>(tempCandidates.values());
         log("Created "+itemsets.size()+" unique itemsets of size "+(currentSizeOfItemsets+1));
 
     }
@@ -257,18 +244,21 @@ public class AssociationsRules extends Observable {
         while (stFile.hasMoreTokens())
         {
 
-            double parsedVal = Double.parseDouble(stFile.nextToken());
-            trans[(int) parsedVal]=true; //if it is not a 0, assign the value to true
+            int parsedVal = Integer.parseInt(stFile.nextToken());
+            trans[parsedVal]=true; //if it is not a 0, assign the value to true
         }
     }
 
 
+    /** passes through the data to measure the frequency of sets in {@link itemsets},
+     *  then filters thoses who are under the minimum support (minSup)
+     */
     private void calculateFrequentItemsets() throws Exception
     {
 
         log("Passing through the data to compute the frequency of " + itemsets.size()+ " itemsets of size "+itemsets.get(0).length);
 
-        List<double[]> frequentCandidates = new ArrayList<>(); //the frequent candidates for the current itemset
+        List<int[]> frequentCandidates = new ArrayList<int[]>(); //the frequent candidates for the current itemset
 
         boolean match; //whether the transaction has all the items in an itemset
         int count[] = new int[itemsets.size()]; //the number of successful matches, initialized by zeros
@@ -277,7 +267,7 @@ public class AssociationsRules extends Observable {
         // load the transaction file
         BufferedReader data_in = new BufferedReader(new InputStreamReader(new FileInputStream(transaFile)));
 
-        boolean[] trans = new boolean[(int) numItems];
+        boolean[] trans = new boolean[numItems];
 
         // for each transaction
         for (int i = 0; i < numTransactions; i++) {
@@ -291,12 +281,12 @@ public class AssociationsRules extends Observable {
                 match = true; // reset match to false
                 // tokenize the candidate so that we know what items need to be
                 // present for a match
-                double[] cand = itemsets.get(c);
+                int[] cand = itemsets.get(c);
                 //int[] cand = candidatesOptimized[c];
                 // check each item in the itemset to see if it is present in the
                 // transaction
-                for (double xx : cand) {
-                    if (trans[(int) xx] == false) {
+                for (int xx : cand) {
+                    if (trans[xx] == false) {
                         match = false;
                         break;
                     }
@@ -324,6 +314,4 @@ public class AssociationsRules extends Observable {
         //new candidates are only the frequent candidates
         itemsets = frequentCandidates;
     }
-
-
 }
